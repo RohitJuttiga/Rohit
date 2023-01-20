@@ -1,1 +1,22 @@
+from fastapi import FastAPI
+
+app = FastAPI()
+
+
+@app.get("/")
+async def calculator(number_1: float, number_2: float, operator: str):
+    if operator == '+':
+        return {number_1 + number_2}
+    elif operator == '-':
+        return {number_1 - number_2}
+    elif operator == '*':
+        return {number_1 * number_2}
+    elif operator == '/':
+        output1: str
+        output2: str
+        output1 = str(number_1 / number_2)
+        output2 = str(number_1 % number_2)
+        return {"Quotient=" + output1, "Remainder=" + output2}
+    else:
+        return {'Please enter valid operator'}
 
