@@ -18,8 +18,7 @@ def add(numbers: Dict[str, float]):
             return result
         else:
             return result
-    except ValueError:
-        return {'error': 'Invalid input. Please provide valid number'}
+
     except Exception:
         raise HTTPException(status_code=500, detail="provide values")
 
