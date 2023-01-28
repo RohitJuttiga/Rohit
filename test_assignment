@@ -1,10 +1,68 @@
-import unittest
+import pytest
+from fastapi.testclient import TestClient
+from assignment import app
+import json
+client = TestClient(app)
 
 
-class MyTestCase(unittest.TestCase):
-    def test_something(self):
-        self.assertNotEqual(True, False)  
+def test_add():
+    response = client.post("/calculator/add", json={"number1": 23, "number2": 3})
+    assert response.status_code == 200
+    assert json.loads(response.text) == 26
 
 
-if __name__ == '__main__':
-    unittest.main()
+def test_add_negative():
+    response = client.post("/calculator/add", json={"number1": -25, "number2": -3})
+    assert response.status_code == 200
+    assert json.loads(response.text) == -28
+
+
+def test_subtract():
+    response = client.post("/calculator/subtract", json={"number1": 5, "number2": 3})
+    assert response.status_code == 200
+    assert json.loads(response.text) == 2
+
+
+def test_subtract_fraction():
+    response = client.post("/calculator/subtract", json={"number1": 5.4, "number2": 3.2})
+    assert response.status_code == 200
+    assert json.loads(response.text) == 2.2
+
+
+def test_multiply():
+    response = client.post("/calculator/multiply", json={"number1": 12, "number2": 5})
+    assert response.status_code == 200
+    assert json.loads(response.text) == 60
+
+
+def test_multiply_big_value():
+    response = client.post("/calculator/multiply", json={"number1": 120, "number2": 55})
+    assert response.status_code == 200
+    assert json.loads(response.text) == 6600
+
+
+def test_divide():
+    response = client.post("/calculator/divide", json={"number1": 20, "number2": 3})
+    assert response.status_code == 200
+    assert json.loads(response.text) == {"quotient": 6.666666666666667, "remainder": 2}
+
+
+def test_add_empty():
+    response = client.post("/calculator/add", json={})
+    assert response.status_code == 500
+    assert json.loads(response.text) == {'detail': 'provide values'}
+
+
+def test_add_invalid():
+    response = client.post("/calculator/add", json={"number1": "hello", "number2": 3})
+    assert response.status_code == 422
+    assert json.loads(response.text) == {'detail': [{'loc': ['body', 'number1'],
+             'msg': 'value is not a valid float',
+             'type': 'type_error.float'}]}
+
+
+def test_divide_by_zero():
+    response = client.post("/calculator/divide", json={"number1": 10, "number2": 0})
+    assert response.status_code == 200
+    assert json.loads(response.text) == "Cannot divide by 0"
+
