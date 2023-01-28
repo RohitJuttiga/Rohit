@@ -1,22 +1,80 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
+from typing import Dict
+import json
+import math
 
 app = FastAPI()
 
 
-@app.get("/")
-async def calculator(number_1: float, number_2: float, operator: str):
-    if operator == '+':
-        return {number_1 + number_2}
-    elif operator == '-':
-        return {number_1 - number_2}
-    elif operator == '*':
-        return {number_1 * number_2}
-    elif operator == '/':
-        output1: str
-        output2: str
-        output1 = str(number_1 / number_2)
-        output2 = str(number_1 % number_2)
-        return {"Quotient=" + output1, "Remainder=" + output2}
-    else:
-        return {'Please enter valid operator'}
+@app.post("/calculator/add")
+def add(numbers: Dict[str, float]):
+    try:
+        number1 = numbers["number1"]
+        number2 = numbers["number2"]
+        result = number1+number2
+        result = json.loads(json.dumps(result))
+        if result.is_integer():
+            result = math.ceil(result)
+            return result
+        else:
+            return result
+    except ValueError:
+        return {'error': 'Invalid input. Please provide valid number'}
+    except Exception:
+        raise HTTPException(status_code=500, detail="provide values")
 
+
+@app.post("/calculator/subtract")
+def subtract(numbers: Dict[str, float]):
+    try:
+        number1 = numbers["number1"]
+        number2 = numbers["number2"]
+        result = number1 - number2
+        result = json.loads(json.dumps(result))
+        if result.is_integer():
+            result = math.ceil(result)
+
+            return result
+        else:
+            return result
+
+    except Exception:
+        raise HTTPException(status_code=500, detail="provide values")
+
+
+@app.post("/calculator/multiply")
+def multiply(numbers: Dict[str, float]):
+    try:
+        number1 = numbers["number1"]
+        number2 = numbers["number2"]
+        result = number1 * number2
+        result = json.loads(json.dumps(result))
+        if result.is_integer():
+            result = math.ceil(result)
+            return result
+        else:
+            return result
+
+    except Exception:
+        raise HTTPException(status_code=500, detail="provide values")
+
+
+@app.post("/calculator/divide")
+def divide(numbers: Dict[str, float]):
+    try:
+        number1 = numbers["number1"]
+        number2 = numbers["number2"]
+        if number2 == 0:
+            return json.loads(json.dumps("Cannot divide by 0"))
+        quotient = number1 / number2
+        remainder = number1 % number2
+        quotient = json.loads(json.dumps(quotient))
+        remainder = json.loads(json.dumps(remainder))
+        if quotient.is_integer():
+            quotient = math.ceil(quotient)
+            return {"quotient": quotient, "remainder": remainder}
+        else:
+            return {"quotient": quotient, "remainder": remainder}
+
+    except Exception:
+        raise HTTPException(status_code=500, detail="provide values")
